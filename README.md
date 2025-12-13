@@ -93,9 +93,39 @@ A validation rule ensures that **a property cannot be created without at least o
 - Page layout optimized
 
 ## 🧑 Tenant Management
-(To be implemented)
+
+### 📌 Objective
+Manage tenants and associate them with one or more properties using a scalable data model.
 
 ---
+
+### 🧱 Object: Tenant__c
+
+Represents a tenant renting one or more properties.
+
+#### Fields
+- Tenant Name (Text, Required)
+- Phone Number (Phone)
+- Email (Email)
+
+---
+
+### 🔗 Many-to-Many Relationship
+
+To support tenants renting multiple properties, a junction object `Property_Tenant__c` is used.
+
+#### Object: Property_Tenant__c
+- Property (Lookup → Property__c)
+- Tenant (Lookup → Tenant__c)
+
+Both lookups are mandatory, ensuring valid assignments.
+
+---
+
+### 🧠 Design Rationale
+- Junction object enables scalability
+- Avoids data duplication
+- Supports future enhancements like rent sharing and occupancy tracking
 
 ## 📄 Lease Agreement Management
 (To be implemented)
