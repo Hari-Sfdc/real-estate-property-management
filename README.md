@@ -127,6 +127,19 @@ Both lookups are mandatory, ensuring valid assignments.
 - Avoids data duplication
 - Supports future enhancements like rent sharing and occupancy tracking
 
+### 📄 Property-Tenant Assignment
+
+The `Property_Tenant__c` object represents the occupancy relationship between a tenant and a property.
+
+#### Key Fields
+- Tenant Role (Primary / Co-Tenant)
+- Occupancy Status (Active / Vacated)
+- Move-in Date
+- Move-out Date
+
+This design allows tracking of current and historical occupancies without data duplication.
+---
+
 ## 📄 Lease Agreement Management
 (To be implemented)
 
