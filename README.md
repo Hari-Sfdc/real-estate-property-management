@@ -138,7 +138,6 @@ The `Property_Tenant__c` object represents the occupancy relationship between a 
 - Move-out Date
 
 This design allows tracking of current and historical occupancies without data duplication.
----
 
 ## 📄 Lease Agreement Management
 (To be implemented)
