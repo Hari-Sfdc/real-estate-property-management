@@ -15,8 +15,8 @@ This application demonstrates real-world Salesforce best practices including:
 
 ## 🧩 Features Implemented (Progressive)
 - [x] Property Management (Core)
-- [ ] Tenant Management
-- [ ] Lease Agreement Management
+- [x] Tenant Management
+- [x] Lease Agreement Management
 - [ ] Vendor Management
 - [ ] Maintenance Request Automation
 - [ ] Reporting & Dashboards
@@ -140,14 +140,64 @@ The `Property_Tenant__c` object represents the occupancy relationship between a 
 This design allows tracking of current and historical occupancies without data duplication.
 
 ## 📄 Lease Agreement Management
-(To be implemented)
+
+### 📌 Objective
+Manage lease agreements between tenants and properties and support time-based automation for renewals.
 
 ---
 
-## 🛠 Vendor & Maintenance Management
-(To be implemented)
+### 🧱 Object: Lease_Agreement__c
+
+Represents a lease contract associated with a single property and tenant.
+
+#### Key Fields
+- Lease Number (Auto Number)
+- Property (Lookup → Property__c)
+- Tenant (Lookup → Tenant__c)
+- Terms (Long Text)
+- Agreed Monthly Rent
+- Start Date
+- End Date
+- Status (Active / Expired / Terminated)
 
 ---
+
+### 🔗 Relationships
+- One Lease Agreement is linked to **one Property**
+- One Lease Agreement is linked to **one Tenant**
+
+---
+
+### ⚙️ Automation: Lease Expiry Reminder
+
+A **Scheduled Flow** runs daily and sends an automated email reminder to tenants **30 days before the lease end date** for active lease agreements.
+
+This ensures timely follow-up and renewal discussions.
+
+---
+
+## 🛠 Vendor & Maintenance Management (Data Model)
+
+### Vendor__c
+Represents service providers responsible for property maintenance.
+
+Fields:
+- Vendor Name
+- Phone Number
+- Email
+
+---
+
+### Maintenance_Request__c
+Tracks maintenance issues raised for properties.
+
+Fields:
+- Property (Lookup)
+- Vendor (Lookup, auto-assigned)
+- Status (Open / In Progress / Completed / Cancelled)
+- Description
+
+Vendor assignment will be handled automatically based on workload.
 
 ## 📊 Reports & Dashboards
 (To be implemented)
