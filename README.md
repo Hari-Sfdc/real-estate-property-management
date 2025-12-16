@@ -1,224 +1,238 @@
 # 🏢 Real Estate Property Management System (Salesforce)
 
 ## 📌 Project Overview
-A Salesforce-based Real Estate Property Management System designed to manage properties, tenants, lease agreements, vendors, and maintenance requests with automation, reporting, and scalability in mind.
 
-This application demonstrates real-world Salesforce best practices including:
-- Scalable data model
-- Server-side pagination
-- Declarative and programmatic automation
-- Bulk-safe Apex
-- Test-driven development
-- Dashboard-driven insights
+A Salesforce-based **Real Estate Property Management System** designed to manage properties, tenants, lease agreements, vendors, and maintenance requests.
 
----
+This project is built incrementally with a focus on **real-world Salesforce best practices**, platform limitations, and scalable architecture rather than just feature completion.
 
-## 🧩 Features Implemented (Progressive)
-- [x] Property Management (Core)
-- [x] Tenant Management
-- [x] Lease Agreement Management
-- [ ] Vendor Management
-- [ ] Maintenance Request Automation
-- [ ] Reporting & Dashboards
-- [ ] Security & Access Control
-- [ ] Unit Testing (80%+ Coverage)
+Key goals of this project:
+- Correct Salesforce data modeling
+- Declarative-first automation
+- Clear separation of responsibilities between objects
+- Honest documentation of what is implemented vs in progress
 
 ---
 
-## 🗂️ Data Model Overview
-(Will be updated as objects are added)
+## 🧩 Overall Implementation Status
+
+### ✅ Completed
+- Core data model (Property, Tenant, Junction, Lease, Vendor, Maintenance)
+- Property creation with **mandatory image upload via Screen Flow**
+- Tenant management
+- Property–Tenant assignment (junction object)
+- Automatic **Task creation** on property assignment
+
+### 🟡 In Progress
+- Lease expiry reminder email (Scheduled Flow – logic designed, doubts being resolved)
+- Property image enforcement refinements & documentation
+
+### ⏳ Pending
+- Maintenance request vendor auto-assignment
+- Property list UI (pagination & filters using LWC)
+- Reports & Dashboards
+- Security & access control
+- Apex unit testing (80%+ coverage)
+
+---
+
+## 🗂️ Data Model Status
+
+| Object | Purpose | Status |
+|------|--------|--------|
+| Property__c | Stores property details | ✅ Done |
+| Tenant__c | Stores tenant details | ✅ Done |
+| Property_Tenant__c | Junction between Property & Tenant | ✅ Done |
+| Lease_Agreement__c | Lease contract management | ✅ Done |
+| Vendor__c | Maintenance vendors | ✅ Done |
+| Maintenance_Request__c | Property maintenance tracking | ✅ Done (Automation pending) |
 
 ---
 
 ## 🏠 Property Management
 
 ### 📌 Objective
-Manage real estate properties with complete details, enforce mandatory data, and prepare the foundation for leasing, maintenance, and reporting.
+Manage real estate properties and ensure **no property can be created without at least one image**, respecting Salesforce platform constraints.
 
 ---
 
 ### 🧱 Object: Property__c
 
-The `Property__c` object represents a real estate unit (Residential or Commercial).
+Represents a residential or commercial property.
 
-#### 🔹 Key Fields
+#### Key Fields
 
-| Field Label | API Name | Type | Mandatory |
-|------------|---------|------|-----------|
-| Property Name | Name | Text | ✅ |
-| Address | Address__c | Text Area | ✅ |
-| City | City__c | Text | ✅ |
-| State | State__c | Text | ✅ |
-| Postal Code | Postal_Code__c | Text | ✅ |
-| Country | Country__c | Picklist | ✅ |
-| Type | Type__c | Picklist (Residential / Commercial) | ✅ |
-| Furnishing Status | Furnishing_Status__c | Picklist | ❌ |
-| Status | Status__c | Picklist (Available / Occupied) | ✅ |
-| Rent | Rent__c | Currency | ✅ |
-| Description | Description__c | Long Text Area | ✅ |
-
----
-
-### 🖼 Property Images
-
-- Property images are managed using **Salesforce Files**
-- Multiple images can be uploaded per property
-- Attachments are not used (deprecated)
-
-#### 🔒 Validation Rule
-A validation rule ensures that **a property cannot be created without at least one image**.
-
-**Rule Logic:**
-- Triggered only during record creation
-- Uses `HASRELATEDRECORD(ContentDocumentLink)`
-
-**User Message:**
-> “Please upload at least one image before saving the Property.”
+| Field | Type | Required |
+|-----|------|----------|
+| Property Name | Text | ✅ |
+| Address | Text Area | ✅ |
+| City | Text | ✅ |
+| State | Text | ✅ |
+| Postal Code | Text | ✅ |
+| Country | Picklist | ✅ |
+| Type (Residential / Commercial) | Picklist | ✅ |
+| Furnishing Status | Picklist | ❌ |
+| Status (Available / Occupied) | Picklist | ✅ |
+| Rent | Currency | ✅ |
+| Description | Long Text Area | ✅ |
+| Has_Image__c | Checkbox | System-controlled |
 
 ---
 
-### 🧠 Design Considerations & Best Practices
+### 🖼 Property Image Enforcement (Important)
 
-- Files are used instead of attachments for scalability and preview support
-- Picklists are used for status and type to support filtering and reporting
-- Validation is enforced at the database level to prevent bad data
-- Object is activity-enabled to support tasks and follow-ups
+#### ⚠️ Salesforce Platform Limitation
+Salesforce validation rules **cannot validate Files** (`ContentDocumentLink`) because files are saved **after record commit**.
+
+#### ✅ Implemented Solution
+- A **Screen Flow** (`Create Property with Image`) is used instead of the standard New button
+- Flow sequence:
+  1. Capture property details
+  2. Create Property record
+  3. Force image upload using File Upload component
+  4. Update `Has_Image__c = true`
+
+This ensures:
+- No property is created without an image
+- No unsupported validation logic is used
+
+**Status:** 🟡 Refinements in progress, core enforcement working
 
 ---
-
-### ✅ Current Status
-- Property object created
-- Mandatory fields enforced
-- Image upload enforced
-- Page layout optimized
 
 ## 🧑 Tenant Management
 
 ### 📌 Objective
-Manage tenants and associate them with one or more properties using a scalable data model.
+Allow tenants to rent **multiple properties** without data duplication.
 
 ---
 
 ### 🧱 Object: Tenant__c
 
-Represents a tenant renting one or more properties.
+Fields:
+- Tenant Name (Required)
+- Phone Number
+- Email
 
-#### Fields
-- Tenant Name (Text, Required)
-- Phone Number (Phone)
-- Email (Email)
-
----
-
-### 🔗 Many-to-Many Relationship
-
-To support tenants renting multiple properties, a junction object `Property_Tenant__c` is used.
-
-#### Object: Property_Tenant__c
-- Property (Lookup → Property__c)
-- Tenant (Lookup → Tenant__c)
-
-Both lookups are mandatory, ensuring valid assignments.
+**Status:** ✅ Done
 
 ---
 
-### 🧠 Design Rationale
-- Junction object enables scalability
-- Avoids data duplication
-- Supports future enhancements like rent sharing and occupancy tracking
+## 🔗 Property–Tenant Assignment (Junction Object)
 
-### 📄 Property-Tenant Assignment
+### 🧱 Object: Property_Tenant__c
 
-The `Property_Tenant__c` object represents the occupancy relationship between a tenant and a property.
+Represents the occupancy relationship.
 
 #### Key Fields
+- Property (Lookup → Property__c)
+- Tenant (Lookup → Tenant__c)
 - Tenant Role (Primary / Co-Tenant)
 - Occupancy Status (Active / Vacated)
 - Move-in Date
 - Move-out Date
 
-This design allows tracking of current and historical occupancies without data duplication.
+**Status:** ✅ Done
+
+---
+
+### ⚙️ Automation: Lease Preparation Task
+
+- When a `Property_Tenant__c` record is created,
+- A **Task** is automatically generated to prepare the lease agreement
+
+**Status:** ✅ Working perfectly
+
+---
 
 ## 📄 Lease Agreement Management
 
 ### 📌 Objective
-Manage lease agreements between tenants and properties and support time-based automation for renewals.
+Manage lease contracts independently from occupancy assignments.
 
 ---
 
 ### 🧱 Object: Lease_Agreement__c
 
-Represents a lease contract associated with a single property and tenant.
-
-#### Key Fields
+Fields:
 - Lease Number (Auto Number)
-- Property (Lookup → Property__c)
-- Tenant (Lookup → Tenant__c)
-- Terms (Long Text)
+- Property (Lookup)
+- Tenant (Lookup)
+- Terms
 - Agreed Monthly Rent
 - Start Date
 - End Date
 - Status (Active / Expired / Terminated)
 
----
-
-### 🔗 Relationships
-- One Lease Agreement is linked to **one Property**
-- One Lease Agreement is linked to **one Tenant**
+**Status:** ✅ Data model complete
 
 ---
 
-### ⚙️ Automation: Lease Expiry Reminder
+### ⏰ Lease Expiry Reminder Email
 
-A **Scheduled Flow** runs daily and sends an automated email reminder to tenants **30 days before the lease end date** for active lease agreements.
+- Designed using **Scheduled Flow**
+- Runs daily
+- Targets leases expiring in 30 days
+- Sends reminder email to tenant
 
-This ensures timely follow-up and renewal discussions.
+**Status:** 🟡 In progress (logic designed, implementation doubts being resolved)
 
 ---
 
-## 🛠 Vendor & Maintenance Management (Data Model)
+## 🛠 Vendor & Maintenance Management
 
 ### Vendor__c
-Represents service providers responsible for property maintenance.
+Stores vendor details.
 
-Fields:
-- Vendor Name
-- Phone Number
-- Email
+**Status:** ✅ Done
 
 ---
 
 ### Maintenance_Request__c
-Tracks maintenance issues raised for properties.
+Tracks maintenance issues.
 
 Fields:
-- Property (Lookup)
-- Vendor (Lookup, auto-assigned)
-- Status (Open / In Progress / Completed / Cancelled)
+- Property
+- Vendor
+- Status
 - Description
 
-Vendor assignment will be handled automatically based on workload.
-
-## 📊 Reports & Dashboards
-(To be implemented)
+**Status:** 🟡 Automation pending  
+(Vendor auto-assignment based on workload to be implemented)
 
 ---
 
-## ⚙️ Technical Architecture
-(To be updated)
+## 🧠 Key Design Decisions
 
----
-
-## 🧪 Testing Strategy
-(To be updated)
-
----
-
-## 🚀 Deployment & Setup
-(To be updated)
+- Files enforced via **Screen Flow**, not validation rules
+- Junction object used instead of overloading Lease Agreement
+- Clear separation of:
+  - Occupancy (`Property_Tenant__c`)
+  - Contract (`Lease_Agreement__c`)
+- Declarative-first approach
+- No unsupported Salesforce hacks used
 
 ---
 
 ## 📁 Version Control
-- All changes are tracked using Git
+
+- Git used for version control
 - Feature-based commits
+- README updated incrementally with actual progress
+
+---
+
+## 🚀 Upcoming Work
+
+- LWC-based Property List
+  - Server-side pagination (25 records/page)
+  - Filters: Price, Status, Furnishing
+- Vendor workload-based assignment (Apex)
+- Reports & Dashboards
+- Apex unit tests (80%+ coverage)
+
+---
+
+## 📌 Note
+
+This project intentionally documents **what is implemented vs in progress** to reflect real-world Salesforce development practices rather than demo-only implementations.
